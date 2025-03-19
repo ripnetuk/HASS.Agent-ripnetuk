@@ -149,10 +149,10 @@ namespace HASS.Agent.Settings
                     abstractSensor = new CurrentVolumeSensor(sensor.UpdateInterval, sensor.EntityName, sensor.Name, sensor.Id.ToString(), sensor.AdvancedSettings);
                     break;
                 case SensorType.GpuLoadSensor:
-                    abstractSensor = new GpuLoadSensor(sensor.UpdateInterval, sensor.EntityName, sensor.Name, sensor.Id.ToString(), sensor.AdvancedSettings);
+                    abstractSensor = new GpuLoadSensor(sensor.Query, sensor.UpdateInterval, sensor.EntityName, sensor.Name, sensor.Id.ToString(), sensor.AdvancedSettings);
                     break;
                 case SensorType.GpuTemperatureSensor:
-                    abstractSensor = new GpuTemperatureSensor(sensor.UpdateInterval, sensor.EntityName, sensor.Name, sensor.Id.ToString(), sensor.AdvancedSettings);
+                    abstractSensor = new GpuTemperatureSensor(sensor.Query, sensor.UpdateInterval, sensor.EntityName, sensor.Name, sensor.Id.ToString(), sensor.AdvancedSettings);
                     break;
                 case SensorType.WmiQuerySensor:
                     abstractSensor = new WmiQuerySensor(sensor.Query, sensor.Scope, sensor.ApplyRounding, sensor.Round, sensor.UpdateInterval, sensor.EntityName, sensor.Name, sensor.Id.ToString(), sensor.AdvancedSettings);
@@ -415,6 +415,40 @@ namespace HASS.Agent.Settings
                             IgnoreAvailability = internalDeviceSensor.IgnoreAvailability,
                             Query = internalDeviceSensor.SensorType.ToString(),
                             AdvancedSettings = internalDeviceSensor.AdvancedSettings
+                        };
+                    }
+
+
+                case HASS.Agent.Shared.HomeAssistant.Sensors.GeneralSensors.SingleValue.GpuTemperatureSensor gpuTemperatureSensor:
+                    {
+                        _ = Enum.TryParse<SensorType>(gpuTemperatureSensor.GetType().Name, out var type);
+                        return new ConfiguredSensor
+                        {
+                            Id = Guid.Parse(gpuTemperatureSensor.Id),
+                            EntityName = gpuTemperatureSensor.EntityName,
+                            Name = gpuTemperatureSensor.Name,
+                            Type = type,
+                            UpdateInterval = gpuTemperatureSensor.UpdateIntervalSeconds,
+                            IgnoreAvailability = gpuTemperatureSensor.IgnoreAvailability,
+                            Query = gpuTemperatureSensor.Query,
+                            AdvancedSettings = gpuTemperatureSensor.AdvancedSettings
+                        };
+                    }
+
+
+                case HASS.Agent.Shared.HomeAssistant.Sensors.GeneralSensors.SingleValue.GpuLoadSensor gpuloadSensor:
+                    {
+                        _ = Enum.TryParse<SensorType>(gpuloadSensor.GetType().Name, out var type);
+                        return new ConfiguredSensor
+                        {
+                            Id = Guid.Parse(gpuloadSensor.Id),
+                            EntityName = gpuloadSensor.EntityName,
+                            Name = gpuloadSensor.Name,
+                            Type = type,
+                            UpdateInterval = gpuloadSensor.UpdateIntervalSeconds,
+                            IgnoreAvailability = gpuloadSensor.IgnoreAvailability,
+                            Query = gpuloadSensor.Query,
+                            AdvancedSettings = gpuloadSensor.AdvancedSettings
                         };
                     }
 

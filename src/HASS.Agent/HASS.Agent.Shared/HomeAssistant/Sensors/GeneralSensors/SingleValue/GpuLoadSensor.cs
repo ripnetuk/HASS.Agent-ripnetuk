@@ -13,9 +13,12 @@ public class GpuLoadSensor : AbstractSingleValueSensor
 {
 	private const string DefaultName = "gpuload";
 	private readonly IHardware _gpu;
+    public string Query { get; private set; }
 
-	public GpuLoadSensor(int? updateInterval = null, string entityName = DefaultName, string name = DefaultName, string id = default, string advancedSettings = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 30, id, advancedSettings: advancedSettings)
+    public GpuLoadSensor(string query, int? updateInterval = null, string entityName = DefaultName, string name = DefaultName, string id = default, string advancedSettings = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 30, id, advancedSettings: advancedSettings)
 	{
+		Query = query;
+
 		_gpu = HardwareManager.Hardware.FirstOrDefault(
 			h => h.HardwareType == HardwareType.GpuAmd ||
 			h.HardwareType == HardwareType.GpuNvidia ||

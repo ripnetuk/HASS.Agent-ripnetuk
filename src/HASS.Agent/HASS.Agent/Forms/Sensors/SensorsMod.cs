@@ -16,6 +16,7 @@ using HASS.Agent.Managers;
 using HASS.Agent.Forms.Commands.CommandConfig;
 using Newtonsoft.Json;
 
+
 namespace HASS.Agent.Forms.Sensors
 {
     public partial class SensorsMod : MetroForm
@@ -30,6 +31,8 @@ namespace HASS.Agent.Forms.Sensors
 
         private readonly Dictionary<string, string> _networkCards = new();
         private readonly Dictionary<string, string> _internalSensors = new();
+        private readonly Dictionary<string, string> _gpus = new();
+
 
         private SensorType _selectedSensorType = SensorType.ActiveWindowSensor;
 
@@ -110,6 +113,19 @@ namespace HASS.Agent.Forms.Sensors
             {
                 var internalSensorType = internalSensor.Type.ToString();
                 _internalSensors.Add(internalSensorType, internalSensorType);
+            }
+
+            _gpus.Add("none", Languages.SensorsMod_None);
+            var gpus = HASS.Agent.Shared.Managers.HardwareManager.Hardware.Where(
+                h => h.HardwareType == LibreHardwareMonitor.Hardware.HardwareType.GpuAmd ||
+                h.HardwareType == LibreHardwareMonitor.Hardware.HardwareType.GpuNvidia ||
+                h.HardwareType == LibreHardwareMonitor.Hardware.HardwareType.GpuIntel
+            );
+
+            foreach (var gpu in gpus)
+            {
+                var gpuName = gpu.Name;
+                _gpus.Add(gpuName, gpuName);
             }
 
             CbIgnoreAvailability.CheckedChanged += CbIgnoreAvailability_CheckedChanged;
@@ -221,6 +237,16 @@ namespace HASS.Agent.Forms.Sensors
                     if (_internalSensors.ContainsKey(Sensor.Query))
                         CbNetworkCard.SelectedItem = new KeyValuePair<string, string>(Sensor.Query, _internalSensors[Sensor.Query]);
                     break;
+                
+                case SensorType.GpuLoadSensor:
+                    if (_gpus.ContainsKey(Sensor.Query))
+                        CbNetworkCard.SelectedItem = new KeyValuePair<string, string>(Sensor.Query, _gpus[Sensor.Query]);
+                    break;
+
+                case SensorType.GpuTemperatureSensor:
+                    if (_gpus.ContainsKey(Sensor.Query))
+                        CbNetworkCard.SelectedItem = new KeyValuePair<string, string>(Sensor.Query, _gpus[Sensor.Query]);
+                    break;
 
                 case SensorType.WindowStateSensor:
                     TbSetting1.Text = Sensor.Query;
@@ -319,6 +345,16 @@ namespace HASS.Agent.Forms.Sensors
                 case SensorType.InternalDeviceSensor:
                     CbNetworkCard.DataSource = new BindingSource(_internalSensors, null);
                     SetInternalSensorGui();
+                    break;
+
+                case SensorType.GpuLoadSensor:
+                    CbNetworkCard.DataSource = new BindingSource(_gpus, null);
+                    SetGpuGui();
+                    break;
+
+                case SensorType.GpuTemperatureSensor:
+                    CbNetworkCard.DataSource = new BindingSource(_gpus, null);
+                    SetGpuGui();
                     break;
 
                 case SensorType.PowershellSensor:
@@ -511,6 +547,23 @@ namespace HASS.Agent.Forms.Sensors
                 SetEmptyGui();
 
                 LblSetting1.Text = Languages.SensorsMod_LblSetting1_InternalSensor;
+                LblSetting1.Visible = true;
+
+                CbNetworkCard.Visible = true;
+            }));
+        }
+
+
+        /// <summary>
+        /// Change the UI to a 'gpu' type
+        /// </summary>
+        private void SetGpuGui()
+        {
+            Invoke(new MethodInvoker(delegate
+            {
+                SetEmptyGui();
+
+                LblSetting1.Text = Languages.SensorsMod_LblSetting1_Gpu;
                 LblSetting1.Visible = true;
 
                 CbNetworkCard.Visible = true;
@@ -801,6 +854,35 @@ namespace HASS.Agent.Forms.Sensors
                     }
                     break;
 
+                case SensorType.GpuTemperatureSensor:
+                    if (CbNetworkCard.SelectedItem != null)
+                    {
+                        var item = (KeyValuePair<string, string>)CbNetworkCard.SelectedItem;
+                        if (item.Value == Languages.SensorsMod_None)
+                        {
+                            MessageBoxAdv.Show(this, Languages.SensorsMod_BtnStore_MessageBox1, Variables.MessageBoxTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            ActiveControl = CbNetworkCard;
+                            return;
+                        }
+
+                        Sensor.Query = item.Key;
+                    }
+                    break;
+
+                case SensorType.GpuLoadSensor:
+                    if (CbNetworkCard.SelectedItem != null)
+                    {
+                        var item = (KeyValuePair<string, string>)CbNetworkCard.SelectedItem;
+                        if (item.Value == Languages.SensorsMod_None)
+                        {
+                            MessageBoxAdv.Show(this, Languages.SensorsMod_BtnStore_MessageBox1, Variables.MessageBoxTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            ActiveControl = CbNetworkCard;
+                            return;
+                        }
+
+                        Sensor.Query = item.Key;
+                    }
+                    break;
                 case SensorType.PowershellSensor:
                     Sensor.Query = TbSetting1.Text.Trim();
                     break;

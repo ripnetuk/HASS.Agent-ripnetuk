@@ -13,13 +13,16 @@ namespace HASS.Agent.Shared.HomeAssistant.Sensors.GeneralSensors.SingleValue
     {
         private const string DefaultName = "gputemperature";
         private readonly IHardware _gpu;
+        public string Query { get; private set; }
 
-        public GpuTemperatureSensor(int? updateInterval = null, string entityName = DefaultName, string name = DefaultName, string id = default, string advancedSettings = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 30, id, advancedSettings: advancedSettings)
+        public GpuTemperatureSensor(string query, int? updateInterval = null, string entityName = DefaultName, string name = DefaultName, string id = default, string advancedSettings = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 30, id, advancedSettings: advancedSettings)
         {
-			_gpu = HardwareManager.Hardware.FirstOrDefault(
-				h => h.HardwareType == HardwareType.GpuAmd ||
+            Query = query;
+
+            _gpu = HardwareManager.Hardware.FirstOrDefault(
+				h => (h.HardwareType == HardwareType.GpuAmd ||
 				h.HardwareType == HardwareType.GpuNvidia ||
-                h.HardwareType == HardwareType.GpuIntel
+                h.HardwareType == HardwareType.GpuIntel) && (h.Name == Query)
 			);
 		}
 

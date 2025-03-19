@@ -6640,7 +6640,18 @@ namespace HASS.Agent.Resources.Localization {
                 return ResourceManager.GetString("SensorsMod_LblSetting1_InternalSensor", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Internal Sensor.
+        /// </summary>
+        internal static string SensorsMod_LblSetting1_Gpu
+        {
+            get
+            {
+                return ResourceManager.GetString("SensorsMod_LblSetting1_Gpu", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Network Card.
         /// </summary>
