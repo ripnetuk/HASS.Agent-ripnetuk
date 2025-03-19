@@ -17,14 +17,14 @@ public class GpuLoadSensor : AbstractSingleValueSensor
 
     public GpuLoadSensor(string query, int? updateInterval = null, string entityName = DefaultName, string name = DefaultName, string id = default, string advancedSettings = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 30, id, advancedSettings: advancedSettings)
 	{
-		Query = query;
+        Query = query;
 
-		_gpu = HardwareManager.Hardware.FirstOrDefault(
-			h => h.HardwareType == HardwareType.GpuAmd ||
-			h.HardwareType == HardwareType.GpuNvidia ||
-            h.HardwareType == HardwareType.GpuIntel
-		);
-	}
+        _gpu = HardwareManager.Hardware.FirstOrDefault(
+            h => (h.HardwareType == HardwareType.GpuAmd ||
+            h.HardwareType == HardwareType.GpuNvidia ||
+            h.HardwareType == HardwareType.GpuIntel) && (h.Name == Query)
+        );
+    }
 
 	public override DiscoveryConfigModel GetAutoDiscoveryConfig()
 	{
